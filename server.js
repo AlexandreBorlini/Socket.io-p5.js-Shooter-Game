@@ -11,4 +11,6 @@ io.on('connection', newConnection);
 function newConnection(socket){
 
     console.log("New connection: " + socket.id);
+
+    io.emit('playerId', socket.id); // Envia o id do player
 }

@@ -9,7 +9,7 @@ var buttonEnterGame;
 // Dados do jogador
 var playerName;
 var playerSpeed = 5;
-var playerConnection;
+var playerId;
  
 
 // RENDERIZAR ---------------------------------------------------------------------------------------------------------------------------
@@ -26,6 +26,14 @@ function draw() { // Update
     background('#333333');
 }
 
+// COMUNICAÇÕES COM O SERVIDOR -------------------------------------------------------------------------------------------------------------------------------
+socket.on('playerId', getPlayerId);
+
+function getPlayerId(data){
+
+    playerId = data;
+    console.log(playerId);
+}
 
 // JANELA INICIAL ------------------------------------------------------------------------------------------------------------------------------------
 
@@ -64,7 +72,7 @@ function enterGame(){ // Entrar no jogo
         name: playerName
     }
 
-    socket.emit('enterGame', playerData);
+    socket.emit('enterGame', playerData); // Envia o nome do jogador
 }
 
 
