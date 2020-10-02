@@ -18,7 +18,7 @@ function setup() { // Start
 
     createCanvas(800, 800);
 
-    initialUI();
+    initialUI(); // Renderiza janela de escolher nome
 }
   
 function draw() { // Update
@@ -32,7 +32,6 @@ socket.on('playerId', getPlayerId);
 function getPlayerId(data){
 
     playerId = data;
-    console.log(playerId);
 }
 
 // JANELA INICIAL ------------------------------------------------------------------------------------------------------------------------------------
@@ -69,10 +68,13 @@ function enterGame(){ // Entrar no jogo
 
     var playerData = {
 
-        name: playerName
+        name: playerName,
+        id: playerId
     }
 
     socket.emit('enterGame', playerData); // Envia o nome do jogador
+
+    deleteInitialUI(); // Reseta a tela
 }
 
 
@@ -81,10 +83,6 @@ function deleteInitialUI(){ // Apagar a UI inicial
     buttonEnterGame.remove();
     inputPlayerName.remove();
 }
-
-
-// Conexões com servidor
-
 
 
 // JOGO ----------------------------------------------------------------------------------------------------------------------------------------------
