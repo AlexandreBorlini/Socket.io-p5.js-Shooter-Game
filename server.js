@@ -23,13 +23,15 @@ var playerRadius = 50;
 var bulletSpeed = 30;
 var bulletRadius = 20;
 
+var highestScore = 0; // A maior pontuação atual
 
 var refreshPlayersWorld = setInterval (function () {                                                                // Atualiza os clients
         
     var dataToEmit = {
 
         players: players,
-        bullets: bullets
+        bullets: bullets,
+        highestScore: highestScore
     }
 
     io.sockets.emit('refreshWorld', dataToEmit);
@@ -81,10 +83,14 @@ function updateBulletsPosition(){                                               
 
 function collisionCheck(){                                                                                          // Cálculo de colisão
 
+    var killed = false;
+    highestScore = 0;
+
     for(var i=0; i<players.length; i++){
 
         for(var j=0; j<bullets.length; j++){
 
+            // Pega a distância e testa a colisão
             var aX = players[i].positionX - bullets[j].positionX;
             var aY = players[i].positionY - bullets[j].positionY;
         
@@ -93,9 +99,31 @@ function collisionCheck(){                                                      
 
             if( distance <= playerRadius + bulletRadius && bullets[j].id != players[i].id){
 
-                players.splice(i,1);
-                bullets.splice(j,1);
+                addPlayerScore(bullets[j].id); // Pega o id de quem atirou e aumenta o score
+
+                players.splice(i,1);           // Tira o player do jogo
+                bullets.splice(j,1);           // Tira a bala
+
+                killed = true;                 // Diz que este player foi morto e não é para 
+                                               // testar o score
             }
+        }
+
+        // Atualiza o maior score
+        if(!killed && players[i].score > highestScore){
+            highestScore = players[i].score;
+        }
+    }
+}
+
+
+function addPlayerScore(playerId){                                                                                      // Adiciona score ao player
+
+    for(var i=0; i < players.length; i++){
+
+        if(players[i].id == playerId){
+
+            players[i].score++;
         }
     }
 }

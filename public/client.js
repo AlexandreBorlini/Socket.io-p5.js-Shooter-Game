@@ -31,7 +31,7 @@ var enteredGame = false;
 var amountLerp = 0.0;
 var amountLerpStep = 0.34;
 var players = [];
-
+var highestScore = 0;
 
 var cam;
 
@@ -79,6 +79,7 @@ function refreshWorld(data){                                                    
 
     players = data.players;
     bullets = data.bullets;
+    highestScore = data.highestScore;
 
     amountLerp = 0;
 }
@@ -254,12 +255,15 @@ function renderPlayer(){                                                        
             playerPosY = y;
 
             cam.setPosition(playerPosX,playerPosY, 800);
+            console.log("PLAYER SCORE: " + players[i].score);
         }
 
         // Renderiza
         ellipse(x, y, 50);
         text(players[i].name, x, y-45);
     }
+
+    console.log("MAIOR SCORE: " + highestScore);
 }
 
 
