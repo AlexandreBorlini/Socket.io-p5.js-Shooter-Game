@@ -93,7 +93,8 @@ function collisionCheck(){                                                      
 
             if( distance <= playerRadius + bulletRadius && bullets[j].id != players[i].id){
 
-                console.log("BATEU");
+                players.splice(i,1);
+                bullets.splice(j,1);
             }
         }
     }
@@ -134,10 +135,11 @@ function connectPlayer(data){                                                   
 
         name: data.name,
         id: data.id,
-        positionX: 0,
-        positionY: 0,
+        positionX: Math.floor(Math.random() * 100) + 1,
+        positionY: Math.floor(Math.random() * 100) + 1,
         oldPositionX:0,
-        oldPositionY:0
+        oldPositionY:0,
+        score: 0
     };
 
     players.push(playerToAdd); // Adiciona o player na lista
