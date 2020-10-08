@@ -1,4 +1,8 @@
-const socket = io('http://localhost:3000');
+const socket = io('localhost:3000');
+
+
+var CANVAS_WIDTH  = 800;
+var CANVAS_HEIGHT = 800;
 
 
 // Tela inicial
@@ -8,34 +12,42 @@ var buttonEnterGame;
 
 // Dados do jogador
 var playerName;
-var playerSpeed = 5;
 var playerId;
-var playerPositionX = 0;
-var playerPositionY = 0;
-var oldPlayerPositionX = 0;
-var oldPlayerPositionY = 0;
+var playerPosX = 0;
+var playerPosY = 0;
+
+// Dados de atirar
+var fireRate = 20;
+var fireRateCounter = 0;
+var bullets = [];
 
 
 // Dados do mundo
 var arialFont;
 var enteredGame = false;
+var amountLerp = 0.0;
+var amountLerpStep = 0.34;
 var players = [];
+
 
 
 // RENDERIZAR ---------------------------------------------------------------------------------------------------------------------------
 
-function setup() { // Start
+function setup() {                                                                              // Start
 
-    createCanvas(800, 800, WEBGL);
-    frameRate(120);
+    createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT, WEBGL);
+    frameRate(60);
 
     setTextConfigs(); // Seta as configurações de texto (fonte, tamanho...)
     initialUI(); // Renderiza janela de escolher nome
 }
   
-function draw() { // Update
 
-    background('#333333');
+function draw() {                                                                               // Update
+
+    fireRateCounter ++;
+
+    
 
     renderWorld();
     movePlayer();
@@ -53,20 +65,12 @@ function getPlayerId(data){
     playerId = data;
 }
 
-function refreshWorld(data){ // Atualiza o mundo
+function refreshWorld(data){                                                                    // Atualiza o mundo
 
-    players = data;
+    players = data.players;
+    bullets = data.bullets;
 
-    /* Atualiza a posição antiga como sendo a nova
-     Para quando passar a posição novamente para o servidor,
-     possa fazer o lerp nos outros clients */
-    oldPlayerPositionX = playerPositionX;
-    oldPlayerPositionY = playerPositionY;
-
-    // Atualiza pois caso o player não ande, a posição antiga
-    // ainda fica salva e nos outros clients o player não
-    // fica indo e voltando
-    sendPosition();
+    amountLerp = 0;
 }
 
 
@@ -80,7 +84,7 @@ function initialUI(){
 }
 
 
-function setInputPlayerName(){ // Input nome do player 
+function setInputPlayerName(){                                                                   // Input nome do player 
 
     inputPlayerName = createInput();
     inputPlayerName.size(300, 30);
@@ -104,10 +108,6 @@ function enterGame(){ // Entrar no jogo
 
     var playerData = { // Envia os dados do jogador
 
-        positionX: playerPositionX,
-        positionY: playerPositionY,
-        oldPositionX: oldPlayerPositionX,
-        oldPositionY: oldPlayerPositionY, 
         name: playerName,
         id: playerId
     }
@@ -129,7 +129,7 @@ function deleteInitialUI(){ // Apagar a UI inicial
 
 // JOGO ----------------------------------------------------------------------------------------------------------------------------------------------
 
-function setTextConfigs(){
+function setTextConfigs(){                                                                      // Setar configurações do texto  
 
     arialFont = loadFont('p5/arial.ttf');
     textFont(arialFont);
@@ -137,96 +137,140 @@ function setTextConfigs(){
     textAlign(CENTER, CENTER);
 }
 
-function movePlayer(){
+
+function movePlayer(){                                                                          // Mover o player
 
     var moved = false;
-    
+    var direction = createVector(0,0);
+
     if (keyIsDown(LEFT_ARROW)) {
 
-        playerPositionX -= playerSpeed;
+        direction.x-=1;
         moved = true;
       }
       else if (keyIsDown(RIGHT_ARROW)){
   
-        playerPositionX += playerSpeed;
+        direction.x+=1;
         moved = true;
       }
   
       if (keyIsDown(DOWN_ARROW)) {
   
-        playerPositionY += playerSpeed;
+        direction.y+=1;
         moved = true;
       }
       else if (keyIsDown(UP_ARROW)){
   
-        playerPositionY -= playerSpeed;
+        direction.y-=1;
         moved = true;
       }
 
       // Se tiver se movido atualiza posição no servidor
       if(moved == true){
 
-        sendPosition();
+        sendMovement(direction); // Envia ao servidor que ele andou
       }
 }
 
 
-function renderWorld(){ // Se o jogador tiver entrado no jogo, renderiza o mundo
+function mousePressed() {                                                                          // Atirar
 
-     if(enteredGame == true){ 
+    if(fireRateCounter >= fireRate){
 
-        for(var i = 0; i < players.length; i++){
+        // Pega a direção do tiro
+        var bulletDirection = createVector( mouseX - (CANVAS_WIDTH/2), 
+                                            mouseY - CANVAS_HEIGHT/2);
+        bulletDirection.normalize();
 
-            if(playerId != players[i].id){
+        sendShoot(bulletDirection); // Envia que atirou ao servidor
 
-                if(players[i].oldPositionX != players[i].positionX){
-
-                    if(players[i].oldPositionX > players[i].positionX){
-
-                        players[i].oldPositionX -= 5;    
-                    }
-                    else{
-
-                        players[i].oldPositionX += 5;
-                    }
-                }
-
-                if(players[i].oldPositionY != players[i].positionY){
-
-                    if(players[i].oldPositionY > players[i].positionY){
-
-                        players[i].oldPositionY -= 5;    
-                    }
-                    else{
-
-                        players[i].oldPositionY += 5;
-                    }
-                }
-                //players[i].oldPositionX = lerp(players[i].oldPositionX, players[i].positionX, 0.45);
-
-                ellipse(players[i].oldPositionX, players[i].oldPositionY, 50);
-
-                text(players[i].name, players[i].oldPositionX, players[i].oldPositionY-45);
-            }
-            else{
-
-                ellipse(playerPositionX, playerPositionY, 50);
-            }
-        }
+        fireRateCounter = 0;
     }
 }
 
 
-function sendPosition(){ // Envia posição ao servidor
+function renderWorld(){                                                                            // Renderizar o mundo
 
-    playerPosition = {
+     if(enteredGame == true){ 
 
-        id: playerId,
-        positionX: playerPositionX,
-        positionY: playerPositionY,
-        oldPositionX: oldPlayerPositionX,
-        oldPositionY: oldPlayerPositionY, 
+        renderPlayer();
+        renderBullets();
+    }
+}
+
+
+function renderBullets(){
+
+    for(var i=0; i< bullets.length; i++){
+
+        if(bullets[i].id != playerId){
+
+            fill('red');
+        }
+        else{
+
+            fill('white');
+        }
+
+
+       // Suaviza o movimento das balas interpolando as posições
+       var y = lerp(bullets[i].oldPositionY, bullets[i].positionY, amountLerp);
+       var x = lerp(bullets[i].oldPositionX, bullets[i].positionX, amountLerp);
+
+        ellipse(x, y, 20);
     }
 
-    socket.emit('refreshPlayerPosition', playerPosition);
+    amountLerp += amountLerpStep;
+}
+
+
+function renderPlayer(){                                                                            // Renderiza os players
+
+    for(var i = 0; i < players.length; i++){
+
+        // Suaviza o movimento do outro player interpolando as posições
+        var y = lerp(players[i].oldPositionY, players[i].positionY, amountLerp);;
+        var x = lerp(players[i].oldPositionX, players[i].positionX, amountLerp);
+
+        if(players[i].id != playerId){
+
+            fill('red');
+        }
+        else{
+            
+            fill('white');
+        }
+
+        // Renderiza
+        ellipse(x, y, 50);
+        text(players[i].name, x, y-45);
+    }
+}
+
+
+function sendMovement(direction){                                                                           // Envia posição ao servidor
+
+    console.log(direction);
+
+    data = {
+
+        id: playerId,
+        directionX: direction.x,
+        directionY: direction.y
+    }
+
+    socket.emit('refreshPlayerPosition', data);
+}
+
+
+function sendShoot(bulletDirection){
+
+    var data = {
+
+        id: playerId,
+        directionX: bulletDirection.x,
+        directionY: bulletDirection.y
+    }
+
+    socket.emit('fired', data);
 }
