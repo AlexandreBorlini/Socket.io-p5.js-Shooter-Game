@@ -1,11 +1,14 @@
 const socket = io('localhost:3000');
 
+// Tela
+var CANVAS_WIDTH  = 1300;
+var CANVAS_HEIGHT = 900;
 
-var CANVAS_WIDTH  = 800;
-var CANVAS_HEIGHT = 800;
 
+// Arena
 var ARENA_WIDTH  = 1600;
 var ARENA_HEIGHT = 1600;
+
 
 // Tela inicial
 var inputPlayerName;
@@ -32,8 +35,12 @@ var amountLerp = 0.0;
 var amountLerpStep = 0.34;
 var players = [];
 var highestScore = 0;
-
 var cam;
+
+
+// Tela de score
+var scoreTablePosX = 390;
+var scoreTablePosY = -440;
 
 
 // RENDERIZAR ---------------------------------------------------------------------------------------------------------------------------
@@ -56,9 +63,12 @@ function draw() {                                                               
 
     background("#333333");
     
+    noStroke();
+
     fill('#222222');
     rect(-ARENA_WIDTH/2, -ARENA_HEIGHT/2, ARENA_WIDTH, ARENA_WIDTH);
 
+    renderScoreTable();
     renderWorld();
     movePlayer();
 }
@@ -99,15 +109,15 @@ function setInputPlayerName(){                                                  
 
     inputPlayerName = createInput();
     inputPlayerName.size(300, 30);
-    inputPlayerName.position(250, 400);
+    inputPlayerName.position((CANVAS_WIDTH/2)-150, CANVAS_HEIGHT/2);
 }
 
 
-function setButtonEnterGame(){ // Botão de entrar no jogo
+function setButtonEnterGame(){                                                                   // Botão de entrar no jogo
 
     buttonEnterGame = createButton('ENTRAR');
     buttonEnterGame.size(100, 50);
-    buttonEnterGame.position(350, 450);
+    buttonEnterGame.position((CANVAS_WIDTH/2)-50, (CANVAS_HEIGHT/2)+50);
 
     buttonEnterGame.mousePressed(enterGame);
 }
@@ -131,7 +141,7 @@ function enterGame(){ // Entrar no jogo
 }
 
 
-function deleteInitialUI(){ // Apagar a UI inicial 
+function deleteInitialUI(){                                                                     // Apagar a UI inicial 
 
     buttonEnterGame.remove();
     inputPlayerName.remove();
@@ -148,6 +158,31 @@ function setTextConfigs(){                                                      
     textAlign(CENTER, CENTER);
 }
 
+
+function renderScoreTable(){                                                                     // Renderiza a tabela de score
+
+    fill('white');
+    rect(scoreTablePosX + playerPosX, scoreTablePosY + playerPosY, 250, 300);
+
+    renderScoreTableText();
+}
+
+function renderScoreTableText(){                                                                // Renderiza o texto da tabela de score
+
+    textAlign(LEFT);
+    fill('black');
+    textSize(24);
+
+    // Renderiza o nome dos 5 players com mais score
+    text("Jajajaja", scoreTablePosX + playerPosX + 10, scoreTablePosY + 30 + playerPosY);
+    text("Jejejeje", scoreTablePosX + playerPosX + 10, scoreTablePosY + 70 + playerPosY);
+    text("Jijijiji", scoreTablePosX + playerPosX + 10, scoreTablePosY + 110 + playerPosY);
+    text("Jojojojo", scoreTablePosX + playerPosX + 10, scoreTablePosY + 150 + playerPosY);
+    text("Jujujuju", scoreTablePosX + playerPosX + 10, scoreTablePosY + 190 + playerPosY);
+
+    textAlign(CENTER, CENTER);
+    textSize(32);
+}
 
 function movePlayer(){                                                                          // Mover o player
 
@@ -258,14 +293,14 @@ function renderPlayer(){                                                        
             console.log("PLAYER SCORE: " + players[i].score);
         }
 
-        // Se for o player MVP, deixa dourado
-        if(players[i].score >= highestScore){
-
-            // Renderiza uma coroa em cima do player
-        }
-
         // Renderiza
         ellipse(x, y, 50);
+
+        // Se for o player MVP, deixa o nome dourado
+        if(players[i].score >= highestScore){
+
+            fill(255, 204, 0);
+        }
         text(players[i].name, x, y-45);
     }
 
