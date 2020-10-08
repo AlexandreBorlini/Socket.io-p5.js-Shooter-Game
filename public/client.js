@@ -204,8 +204,8 @@ function renderWorld(){                                                         
 
      if(enteredGame == true){ 
 
-        renderBullets();
         renderPlayer();
+        renderBullets();
     }
 }
 
@@ -243,19 +243,25 @@ function renderPlayer(){                                                        
         var y = lerp(players[i].oldPositionY, players[i].positionY, amountLerp);;
         var x = lerp(players[i].oldPositionX, players[i].positionX, amountLerp);
 
+        fill('white'); // Seta branco como a cor padrão, depois são feitas alterações
+        
         if(players[i].id != playerId){
 
             fill('red');
         }
         else{
-            
-            fill('white');
 
             playerPosX = x;
             playerPosY = y;
 
-            cam.setPosition(playerPosX,playerPosY, 800);
+            cam.setPosition(playerPosX, playerPosY, 800);
             console.log("PLAYER SCORE: " + players[i].score);
+        }
+
+        // Se for o player MVP, deixa dourado
+        if(players[i].score >= highestScore){
+
+            // Renderiza uma coroa em cima do player
         }
 
         // Renderiza
