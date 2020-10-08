@@ -5,6 +5,9 @@ app.use(express.static('public'));
 var socket = require('socket.io');
 var io = socket(server);
 
+// Tamanho da arena que o player pode se mover
+var HALF_ARENA_WIDTH  = 800;
+var HALF_ARENA_HEIGHT = 800;
 
 let players = []; // Segura todos os players
 let bullets = []; // Segura os tiros
@@ -16,7 +19,9 @@ io.on('connection', newConnection);
 const interval = 51;
 const calcInterval = 16; // +- 60 fps
 var playerSpeed = 10;
+var playerRadius = 50;
 var bulletSpeed = 30;
+var bulletRadius = 20;
 
 
 var refreshPlayersWorld = setInterval (function () {                                                                // Atualiza os clients
@@ -49,6 +54,13 @@ var refreshPlayersWorld = setInterval (function () {                            
 // Calcula a posição dos players, das balas, e a colisão
 var calculateWorld = setInterval (function () {                                                                     // Calcula as ações do mundo
         
+    updateBulletsPosition();
+    collisionCheck();
+
+}, calcInterval); 
+
+
+function updateBulletsPosition(){                                                                                   // Calcula a posição das balas
 
     for(var i=0; i<bullets.length;i++){
 
@@ -64,8 +76,28 @@ var calculateWorld = setInterval (function () {                                 
             bullets.splice(i, 1);
         }
     }
+}
 
-}, calcInterval); 
+
+function collisionCheck(){                                                                                          // Cálculo de colisão
+
+    for(var i=0; i<players.length; i++){
+
+        for(var j=0; j<bullets.length; j++){
+
+            var aX = players[i].positionX - bullets[j].positionX;
+            var aY = players[i].positionY - bullets[j].positionY;
+        
+            var distance = Math.sqrt((aX * aX) + (aY * aY));
+            Math.abs(distance);
+
+            if( distance <= playerRadius + bulletRadius && bullets[j].id != players[i].id){
+
+                console.log("BATEU");
+            }
+        }
+    }
+}
 
 
 function newConnection(socket){
@@ -119,8 +151,29 @@ function refreshPlayerPosition(data){                                           
 
         if(players[i].id == data.id){
 
+
             players[i].positionX += data.directionX * playerSpeed;
             players[i].positionY += data.directionY * playerSpeed;
+
+            if(players[i].positionX < -HALF_ARENA_WIDTH){
+
+                players[i].positionX = -HALF_ARENA_WIDTH;
+            }
+            else if(players[i].positionX > HALF_ARENA_WIDTH){
+
+                players[i].positionX = HALF_ARENA_WIDTH;
+            }
+
+            
+            if(players[i].positionY < -HALF_ARENA_HEIGHT){
+
+                players[i].positionY = -HALF_ARENA_HEIGHT;
+            }
+            else if(players[i].positionY > HALF_ARENA_HEIGHT){
+
+                players[i].positionY = HALF_ARENA_HEIGHT;
+            }
+            
         }
     }
 }

@@ -4,6 +4,8 @@ const socket = io('localhost:3000');
 var CANVAS_WIDTH  = 800;
 var CANVAS_HEIGHT = 800;
 
+var ARENA_WIDTH  = 1600;
+var ARENA_HEIGHT = 1600;
 
 // Tela inicial
 var inputPlayerName;
@@ -15,6 +17,7 @@ var playerName;
 var playerId;
 var playerPosX = 0;
 var playerPosY = 0;
+
 
 // Dados de atirar
 var fireRate = 20;
@@ -30,6 +33,8 @@ var amountLerpStep = 0.34;
 var players = [];
 
 
+var cam;
+
 
 // RENDERIZAR ---------------------------------------------------------------------------------------------------------------------------
 
@@ -37,6 +42,8 @@ function setup() {                                                              
 
     createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT, WEBGL);
     frameRate(60);
+
+    cam = createCamera();
 
     setTextConfigs(); // Seta as configurações de texto (fonte, tamanho...)
     initialUI(); // Renderiza janela de escolher nome
@@ -47,7 +54,10 @@ function draw() {                                                               
 
     fireRateCounter ++;
 
+    background("#333333");
     
+    fill('#222222');
+    rect(-ARENA_WIDTH/2, -ARENA_HEIGHT/2, ARENA_WIDTH, ARENA_WIDTH);
 
     renderWorld();
     movePlayer();
@@ -193,8 +203,8 @@ function renderWorld(){                                                         
 
      if(enteredGame == true){ 
 
-        renderPlayer();
         renderBullets();
+        renderPlayer();
     }
 }
 
@@ -239,6 +249,11 @@ function renderPlayer(){                                                        
         else{
             
             fill('white');
+
+            playerPosX = x;
+            playerPosY = y;
+
+            cam.setPosition(playerPosX,playerPosY, 800);
         }
 
         // Renderiza
@@ -249,8 +264,6 @@ function renderPlayer(){                                                        
 
 
 function sendMovement(direction){                                                                           // Envia posição ao servidor
-
-    console.log(direction);
 
     data = {
 
