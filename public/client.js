@@ -70,8 +70,8 @@ function draw() {                                                               
     fill('#222222');
     rect(-ARENA_WIDTH/2, -ARENA_HEIGHT/2, ARENA_WIDTH, ARENA_WIDTH);
 
-    renderScoreTable();
     renderWorld();
+    renderScoreTable();
     movePlayer();
 }
 
@@ -181,7 +181,8 @@ function organizePlayersByScore(){                                              
 
 function renderScoreTable(){                                                                     // Renderiza a tabela de score
 
-    fill('white');
+    var tableColor = alpha(color(0, 0, 0, 30));
+    fill(tableColor);
     rect(scoreTablePosX + playerPosX, scoreTablePosY + playerPosY, 250, 300);
 
     renderScoreTableText();
@@ -194,14 +195,22 @@ function renderScoreTableText(){                                                
     textSize(24);
 
     // Renderiza o nome dos 5 players com mais score
-    if(players.length>=1)
+    if(players.length>=1){
+        fill(255, 204, 0);
         text(players[0].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 30 + playerPosY);
+    }
 
-    if(players.length>=2)
+    if(players.length>=2){
+        fill(200, 200, 200);
         text(players[1].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 70 + playerPosY);
+    }
     
-    if(players.length>=3)
+    if(players.length>=3){
+        fill(205, 127, 50);
         text(players[2].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 110 + playerPosY);
+    }
+
+    fill('white');
 
     if(players.length>=4)
         text(players[3].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 150 + playerPosY);
@@ -325,7 +334,7 @@ function renderPlayer(){                                                        
         ellipse(x, y, 50);
 
         // Se for o player MVP, deixa o nome dourado
-        if(players[i].score >= highestScore){
+        if(i == 0){
 
             fill(255, 204, 0);
         }
