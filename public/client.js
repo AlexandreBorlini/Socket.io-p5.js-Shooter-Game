@@ -43,6 +43,8 @@ var scoreTablePosX = 390;
 var scoreTablePosY = -440;
 
 
+var topScorePlayers = [];
+
 // RENDERIZAR ---------------------------------------------------------------------------------------------------------------------------
 
 function setup() {                                                                              // Start
@@ -89,7 +91,8 @@ function refreshWorld(data){                                                    
 
     players = data.players;
     bullets = data.bullets;
-    highestScore = data.highestScore;
+
+    organizePlayersByScore();
 
     amountLerp = 0;
 }
@@ -159,6 +162,23 @@ function setTextConfigs(){                                                      
 }
 
 
+function organizePlayersByScore(){                                                                  // Pega os top 5 players
+
+    function compare(a,b){
+
+        if(a.score < b.score){
+            return 1;
+        }
+        if(a.score>b.score){
+            return -1;
+        }
+        return 0;
+    }
+
+    players.sort(compare);
+}
+
+
 function renderScoreTable(){                                                                     // Renderiza a tabela de score
 
     fill('white');
@@ -174,11 +194,20 @@ function renderScoreTableText(){                                                
     textSize(24);
 
     // Renderiza o nome dos 5 players com mais score
-    text("Jajajaja", scoreTablePosX + playerPosX + 10, scoreTablePosY + 30 + playerPosY);
-    text("Jejejeje", scoreTablePosX + playerPosX + 10, scoreTablePosY + 70 + playerPosY);
-    text("Jijijiji", scoreTablePosX + playerPosX + 10, scoreTablePosY + 110 + playerPosY);
-    text("Jojojojo", scoreTablePosX + playerPosX + 10, scoreTablePosY + 150 + playerPosY);
-    text("Jujujuju", scoreTablePosX + playerPosX + 10, scoreTablePosY + 190 + playerPosY);
+    if(players.length>=1)
+        text(players[0].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 30 + playerPosY);
+
+    if(players.length>=2)
+        text(players[1].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 70 + playerPosY);
+    
+    if(players.length>=3)
+        text(players[2].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 110 + playerPosY);
+
+    if(players.length>=4)
+        text(players[3].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 150 + playerPosY);
+
+    if(players.length>=5)
+        text(players[4].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 190 + playerPosY);
 
     textAlign(CENTER, CENTER);
     textSize(32);
@@ -290,7 +319,6 @@ function renderPlayer(){                                                        
             playerPosY = y;
 
             cam.setPosition(playerPosX, playerPosY, 800);
-            console.log("PLAYER SCORE: " + players[i].score);
         }
 
         // Renderiza
@@ -303,8 +331,6 @@ function renderPlayer(){                                                        
         }
         text(players[i].name, x, y-45);
     }
-
-    console.log("MAIOR SCORE: " + highestScore);
 }
 
 

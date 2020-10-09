@@ -23,15 +23,13 @@ var playerRadius = 50;
 var bulletSpeed = 30;
 var bulletRadius = 20;
 
-var highestScore = 0; // A maior pontuação atual
 
 var refreshPlayersWorld = setInterval (function () {                                                                // Atualiza os clients
         
     var dataToEmit = {
 
         players: players,
-        bullets: bullets,
-        highestScore: highestScore
+        bullets: bullets
     }
 
     io.sockets.emit('refreshWorld', dataToEmit);
@@ -83,9 +81,6 @@ function updateBulletsPosition(){                                               
 
 function collisionCheck(){                                                                                          // Cálculo de colisão
 
-    var killed = false;
-    highestScore = 0;
-
     for(var i=0; i<players.length; i++){
 
         for(var j=0; j<bullets.length; j++){
@@ -103,15 +98,7 @@ function collisionCheck(){                                                      
 
                 players.splice(i,1);           // Tira o player do jogo
                 bullets.splice(j,1);           // Tira a bala
-
-                killed = true;                 // Diz que este player foi morto e não é para 
-                                               // testar o score
             }
-        }
-
-        // Atualiza o maior score
-        if(!killed && players[i].score > highestScore){
-            highestScore = players[i].score;
         }
     }
 }
