@@ -16,8 +16,9 @@ var buttonEnterGame;
 
 
 // Dados do jogador
-var playerName;
+var playerName = "You";
 var playerId;
+var playerScore = 0;
 var playerPosX = 0;
 var playerPosY = 0;
 
@@ -36,6 +37,7 @@ var amountLerpStep = 0.34;
 var players = [];
 var highestScore = 0;
 var cam;
+var gameStarted = false;
 
 
 // Tela de score
@@ -85,6 +87,7 @@ socket.on('refreshWorld', refreshWorld);
 function getPlayerId(data){
 
     playerId = data;
+    gameStarted = true;
 }
 
 function refreshWorld(data){                                                                    // Atualiza o mundo
@@ -181,11 +184,13 @@ function organizePlayersByScore(){                                              
 
 function renderScoreTable(){                                                                     // Renderiza a tabela de score
 
-    var tableColor = alpha(color(0, 0, 0, 30));
+    var tableColor = color(0,0,0);
+    tableColor.setAlpha(100);
     fill(tableColor);
-    rect(scoreTablePosX + playerPosX, scoreTablePosY + playerPosY, 250, 300);
+    rect(scoreTablePosX + playerPosX, scoreTablePosY + playerPosY, 250, 225);
 
     renderScoreTableText();
+    renderPlayerScore();
 }
 
 function renderScoreTableText(){                                                                // Renderiza o texto da tabela de score
@@ -197,27 +202,48 @@ function renderScoreTableText(){                                                
     // Renderiza o nome dos 5 players com mais score
     if(players.length>=1){
         fill(255, 204, 0);
-        text(players[0].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 30 + playerPosY);
+
+        text(players[0].score, scoreTablePosX + playerPosX + 10, scoreTablePosY + 30 + playerPosY);
+        text(players[0].name, scoreTablePosX + playerPosX + 50, scoreTablePosY + 30 + playerPosY);
     }
 
     if(players.length>=2){
         fill(200, 200, 200);
-        text(players[1].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 70 + playerPosY);
+        text(players[1].score, scoreTablePosX + playerPosX + 10, scoreTablePosY + 70 + playerPosY);
+        text(players[1].name, scoreTablePosX + playerPosX + 50, scoreTablePosY + 70 + playerPosY);
     }
     
     if(players.length>=3){
         fill(205, 127, 50);
-        text(players[2].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 110 + playerPosY);
+        text(players[2].score, scoreTablePosX + playerPosX + 10, scoreTablePosY + 110 + playerPosY);
+        text(players[2].name, scoreTablePosX + playerPosX + 50, scoreTablePosY + 110 + playerPosY);
     }
 
     fill('white');
 
-    if(players.length>=4)
-        text(players[3].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 150 + playerPosY);
+    if(players.length>=4){
+        text(players[3].score, scoreTablePosX + playerPosX + 10, scoreTablePosY + 150 + playerPosY);
+        text(players[3].name, scoreTablePosX + playerPosX + 50, scoreTablePosY + 150 + playerPosY);
+    }
 
-    if(players.length>=5)
-        text(players[4].name, scoreTablePosX + playerPosX + 10, scoreTablePosY + 190 + playerPosY);
+    if(players.length>=5){
+        text(players[4].score, scoreTablePosX + playerPosX + 10, scoreTablePosY + 190 + playerPosY);
+        text(players[4].name, scoreTablePosX + playerPosX + 50, scoreTablePosY + 190 + playerPosY);
+    }
+}
 
+function renderPlayerScore(){                                                                         // Renderiza o score do player
+
+    // If não realmente necessário
+    // só pra tirar um erro inicial que não afeta nada
+    if(gameStarted){ 
+
+        text(playerScore, scoreTablePosX + playerPosX + 10, scoreTablePosY + 240 + playerPosY);
+        text(playerName, scoreTablePosX + playerPosX + 50, scoreTablePosY + 240 + playerPosY);
+    }
+
+    // Como é continuação da rendrização dos top players, usa as configurações de texto
+    // anteriores e só muda ao normal depois de renderizar o deste player
     textAlign(CENTER, CENTER);
     textSize(32);
 }
@@ -324,6 +350,7 @@ function renderPlayer(){                                                        
         }
         else{
 
+            playerScore = players[i].score;
             playerPosX = x;
             playerPosY = y;
 
@@ -334,10 +361,13 @@ function renderPlayer(){                                                        
         ellipse(x, y, 50);
 
         // Se for o player MVP, deixa o nome dourado
-        if(i == 0){
-
+        if(i == 0)
             fill(255, 204, 0);
-        }
+        else if(i == 1)
+            fill(200, 200, 200);
+        else if(i==2)
+            fill(205, 127, 50);
+
         text(players[i].name, x, y-45);
     }
 }

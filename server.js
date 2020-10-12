@@ -150,8 +150,8 @@ function connectPlayer(data){                                                   
 
         name: data.name,
         id: data.id,
-        positionX: Math.floor(Math.random() * 100) + 1,
-        positionY: Math.floor(Math.random() * 100) + 1,
+        positionX: Math.floor(Math.random() * HALF_ARENA_WIDTH *2) -HALF_ARENA_WIDTH,
+        positionY: Math.floor(Math.random() * HALF_ARENA_HEIGHT*2) -HALF_ARENA_HEIGHT,
         oldPositionX:0,
         oldPositionY:0,
         score: 0
